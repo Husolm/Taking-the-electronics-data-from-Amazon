@@ -32,9 +32,9 @@ def urlAmazon(paging_method=int()):
             f.write(f"{productName}: {productPrice} - {paging_method}\n")
 
 def main():
-    page_method = list(range(1,401)) 
-    with Pool(50) as p:
-        p.map(urlAmazon, page_method) 
+    page_method = list(range(1,401)) # must be changed
+    with Pool(50) as p: # process amount per sec
+        p.map(urlAmazon, page_method) # processes loop 
 
     print("Finished.")
     
