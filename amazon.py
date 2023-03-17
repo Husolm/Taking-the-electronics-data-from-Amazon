@@ -7,15 +7,11 @@ from multiprocessing.pool import Pool
 
 
 def urlAmazon(paging_method=int()):
-    url = "https://www.amazon.com.tr/s?i=electronics&bbn=13709880031&rh=n%3A13709880031%2Cp_n_fulfilled_by_amazon%3A21345978031&dc&page={paging_method}&rnid=21345970031&ref=sr_pg_2"
-
+    url= f"https://www.amazon.com.tr/s?i=electronics&bbn=13709880031&rh=n%3A13709880031%2Cp_n_fulfilled_by_amazon%3A21345978031&dc&page={paging_method}&rnid=21345970031&ref=sr_pg_2"
     headers = {"user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"}
-
     req = requests.get(url,headers=headers)
-    soup = BeautifulSoup(req.content,"lxml")
-    
-    productList= soup.find("div","s-main-slot s-result-list s-search-results sg-row").findAll("div","sg-col-4-of-24 sg-col-4-of-12 s-result-item s-asin sg-col-4-of-16 sg-col s-widget-spacing-small sg-col-4-of-20")
-    
+    soup = BeautifulSoup(req.content,"lxml")   
+    productList= soup.find("div","s-main-slot s-result-list s-search-results sg-row").findAll("div","sg-col-4-of-24 sg-col-4-of-12 s-result-item s-asin sg-col-4-of-16 sg-col s-widget-spacing-small sg-col-4-of-20")  
     """if not soup.find("div","a-section a-text-center s-pagination-container"):
         exit()
     else:
@@ -32,9 +28,17 @@ def urlAmazon(paging_method=int()):
             f.write(f"{productName}: {productPrice} - {paging_method}\n")
 
 def main():
-    page_method = list(range(1,401)) # must be changed
-    with Pool(50) as p: # process amount per sec
-        p.map(urlAmazon, page_method) # processes loop 
+    """input("Enter the URL: ")"""
+    url = "https://www.amazon.com.tr/s?i=electronics&bbn=13709880031&rh=n%3A13709880031%2Cp_n_fulfilled_by_amazon%3A21345978031&dc&page=1&rnid=21345970031&ref=sr_pg_2" # might be enter by user
+    headers = {"user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"}
+    req = requests.get(url,headers=headers)
+    soup = BeautifulSoup(req.content,"lxml")   
+    max_page = int(soup.find("div","a-section a-text-center s-pagination-container").findAllNext("span","s-pagination-item")[-1].getText(strip=True))
+    print("Max page: ",max_page)
+    page_method = list(range(1,max_page+1)) # must be changed
+    process_input= int(input("Process per sec (50): "))
+    with Pool(process_input) as p: # process amount per sec
+        p.map(urlAmazon, iterable=page_method) # processes loop 
 
     print("Finished.")
     
